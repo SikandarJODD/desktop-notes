@@ -1,5 +1,5 @@
 <script lang="ts">
-	import CaretRightIcon from 'phosphor-svelte/lib/CaretRight';
+	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import { cn, type WithElementRef } from "$lib/utils.js";
 	import type { HTMLLiAttributes } from "svelte/elements";
 
@@ -22,6 +22,6 @@
 	{#if children}
 		{@render children?.()}
 	{:else}
-		<CaretRightIcon class="cn-rtl-flip" />
+		<ChevronRightIcon class="cn-rtl-flip" />
 	{/if}
 </li>

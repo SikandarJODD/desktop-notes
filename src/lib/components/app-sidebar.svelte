@@ -1,179 +1,59 @@
-<script lang="ts" module>
-	import BookOpenIcon from "@lucide/svelte/icons/book-open";
-	import BotIcon from "@lucide/svelte/icons/bot";
-	import ChartPieIcon from "@lucide/svelte/icons/chart-pie";
-	import FrameIcon from "@lucide/svelte/icons/frame";
-	import LifeBuoyIcon from "@lucide/svelte/icons/life-buoy";
-	import MapIcon from "@lucide/svelte/icons/map";
-	import SendIcon from "@lucide/svelte/icons/send";
-	import Settings2Icon from "@lucide/svelte/icons/settings-2";
-	import SquareTerminalIcon from "@lucide/svelte/icons/square-terminal";
-
-	const data = {
-		user: {
-			name: "shadcn",
-			email: "m@example.com",
-			avatar: "/avatars/shadcn.jpg",
-		},
-		navMain: [
-			{
-				title: "Playground",
-				url: "#",
-				icon: SquareTerminalIcon,
-				isActive: true,
-				items: [
-					{
-						title: "History",
-						url: "#",
-					},
-					{
-						title: "Starred",
-						url: "#",
-					},
-					{
-						title: "Settings",
-						url: "#",
-					},
-				],
-			},
-			{
-				title: "Models",
-				url: "#",
-				icon: BotIcon,
-				items: [
-					{
-						title: "Genesis",
-						url: "#",
-					},
-					{
-						title: "Explorer",
-						url: "#",
-					},
-					{
-						title: "Quantum",
-						url: "#",
-					},
-				],
-			},
-			{
-				title: "Documentation",
-				url: "#",
-				icon: BookOpenIcon,
-				items: [
-					{
-						title: "Introduction",
-						url: "#",
-					},
-					{
-						title: "Get Started",
-						url: "#",
-					},
-					{
-						title: "Tutorials",
-						url: "#",
-					},
-					{
-						title: "Changelog",
-						url: "#",
-					},
-				],
-			},
-			{
-				title: "Settings",
-				url: "#",
-				icon: Settings2Icon,
-				items: [
-					{
-						title: "General",
-						url: "#",
-					},
-					{
-						title: "Team",
-						url: "#",
-					},
-					{
-						title: "Billing",
-						url: "#",
-					},
-					{
-						title: "Limits",
-						url: "#",
-					},
-				],
-			},
-		],
-		navSecondary: [
-			{
-				title: "Support",
-				url: "#",
-				icon: LifeBuoyIcon,
-			},
-			{
-				title: "Feedback",
-				url: "#",
-				icon: SendIcon,
-			},
-		],
-		projects: [
-			{
-				name: "Design Engineering",
-				url: "#",
-				icon: FrameIcon,
-			},
-			{
-				name: "Sales & Marketing",
-				url: "#",
-				icon: ChartPieIcon,
-			},
-			{
-				name: "Travel",
-				url: "#",
-				icon: MapIcon,
-			},
-		],
-	};
-</script>
-
 <script lang="ts">
-	import CommandIcon from "@lucide/svelte/icons/command";
-	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import NavMain from "./nav-main.svelte";
-	import NavProjects from "./nav-projects.svelte";
-	import NavSecondary from "./nav-secondary.svelte";
-	import NavUser from "./nav-user.svelte";
-	import type { ComponentProps } from "svelte";
+	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { NoteSidebarSection } from '$lib/components/notes/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { notesStore } from '$lib/notes/notes.svelte.js';
+	import type { ComponentProps } from 'svelte';
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
+
+	const pinnedNotes = $derived(notesStore.notes.filter((note) => note.isPinned));
+	const recentNotes = $derived(notesStore.notes.filter((note) => !note.isPinned));
+	const activeNoteId = $derived(page.params.id);
+
+	onMount(() => {
+		void notesStore.refresh();
+	});
 </script>
 
 <Sidebar.Root bind:ref variant="inset" {...restProps}>
 	<Sidebar.Header>
-		<Sidebar.Menu>
-			<Sidebar.MenuItem>
-				<Sidebar.MenuButton size="lg">
-					{#snippet child({ props })}
-						<a href="##" {...props}>
-							<div
-								class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
-							>
-								<CommandIcon class="size-4" />
-							</div>
-							<div class="grid flex-1 text-start text-sm leading-tight">
-								<span class="truncate font-medium">Acme Inc</span>
-								<span class="truncate text-xs">Enterprise</span>
-							</div>
-						</a>
-					{/snippet}
-				</Sidebar.MenuButton>
-			</Sidebar.MenuItem>
-		</Sidebar.Menu>
+		<div class="flex h-7 items-center px-2">
+			<span class="text-sm font-semibold tracking-tight">Notes</span>
+		</div>
+		<Button href={resolve('/notes/new')} class="w-full justify-start" size="sm">
+			<!-- <PlusIcon /> -->
+			New note
+		</Button>
 	</Sidebar.Header>
+
+	<!-- <Sidebar.Separator /> -->
+
 	<Sidebar.Content>
-		<NavMain items={data.navMain} />
-		<NavProjects projects={data.projects} />
-		<NavSecondary items={data.navSecondary} class="mt-auto" />
+		{#if pinnedNotes.length > 0}
+			<NoteSidebarSection title="Pinned" notes={pinnedNotes} {activeNoteId} />
+		{/if}
+
+		<NoteSidebarSection
+			title="Recent notes"
+			notes={recentNotes}
+			{activeNoteId}
+			loading={notesStore.loading && notesStore.notes.length === 0}
+		/>
+
+		{#if notesStore.error}
+			<div class="space-y-2 px-4 py-2">
+				<p class="text-xs text-destructive" role="alert">{notesStore.error}</p>
+				<Button variant="outline" size="xs" onclick={() => void notesStore.refresh()}>
+					Try again
+				</Button>
+			</div>
+		{/if}
 	</Sidebar.Content>
-	<Sidebar.Footer>
-		<NavUser user={data.user} />
-	</Sidebar.Footer>
+
+	<Sidebar.Rail />
 </Sidebar.Root>

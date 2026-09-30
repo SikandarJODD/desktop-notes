@@ -1,5 +1,5 @@
 <script lang="ts">
-	import DotsThreeIcon from 'phosphor-svelte/lib/DotsThree';
+	import MoreHorizontalIcon from '@lucide/svelte/icons/more-horizontal';
 	import { cn, type WithElementRef, type WithoutChildren } from "$lib/utils.js";
 	import type { HTMLAttributes } from "svelte/elements";
 
@@ -18,6 +18,6 @@
 	class={cn("size-5 [&>svg]:size-4 flex items-center justify-center", className)}
 	{...restProps}
 >
-	<DotsThreeIcon  />
+	<MoreHorizontalIcon  />
 	<span class="sr-only">More</span>
 </span>
