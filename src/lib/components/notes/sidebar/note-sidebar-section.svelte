@@ -8,6 +8,9 @@
 		activeNoteId?: string;
 		loading?: boolean;
 		emptyMessage?: string;
+		disabledNoteId?: string | null;
+		ontogglepin: (note: Note) => void;
+		ondelete: (note: Note) => void;
 	}
 
 	let {
@@ -15,7 +18,10 @@
 		notes,
 		activeNoteId,
 		loading = false,
-		emptyMessage = 'No notes yet.'
+		emptyMessage = 'No notes yet.',
+		disabledNoteId,
+		ontogglepin,
+		ondelete
 	}: Props = $props();
 </script>
 
@@ -29,7 +35,13 @@
 				{/each}
 			{:else if notes.length > 0}
 				{#each notes as note (note.id)}
-					<NoteSidebarItem {note} active={activeNoteId === note.id} />
+					<NoteSidebarItem
+						{note}
+						active={activeNoteId === note.id}
+						disabled={disabledNoteId === note.id}
+						{ontogglepin}
+						{ondelete}
+					/>
 				{/each}
 			{:else}
 				<li class="px-2 py-1.5 text-xs text-sidebar-foreground/60">{emptyMessage}</li>

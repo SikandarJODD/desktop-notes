@@ -1,3 +1,4 @@
+export { default as NoteActionMenu } from './actions/note-action-menu.svelte';
 export { default as NoteEditor } from './editor/note-editor.svelte';
 export { default as TagInput } from './editor/tag-input.svelte';
 export { default as NoteLoading } from './feedback/note-loading.svelte';

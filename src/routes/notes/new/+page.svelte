@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { NoteEditor } from '$lib/components/notes/index.js';
+	import { toPlainNoteInput } from '$lib/notes/note-input.js';
 	import { notesStore } from '$lib/notes/notes.svelte.js';
 
 	let submitting = $state(false);
@@ -17,7 +18,7 @@
 
 		try {
 			if (!window.desktop?.notes) throw new Error('Notes are available in the desktop app.');
-			const note = await window.desktop.notes.create(input);
+			const note = await window.desktop.notes.create(toPlainNoteInput(input));
 			notesStore.upsert(note);
 			await goto(resolve('/notes/[id]', { id: note.id }), { replaceState: true });
 		} catch (caughtError) {

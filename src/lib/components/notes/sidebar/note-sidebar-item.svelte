@@ -2,8 +2,17 @@
 	import { resolve } from '$app/paths';
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import NoteActionMenu from '../actions/note-action-menu.svelte';
 
-	let { note, active = false }: { note: Note; active?: boolean } = $props();
+	interface Props {
+		note: Note;
+		active?: boolean;
+		disabled?: boolean;
+		ontogglepin: (note: Note) => void;
+		ondelete: (note: Note) => void;
+	}
+
+	let { note, active = false, disabled = false, ontogglepin, ondelete }: Props = $props();
 </script>
 
 <Sidebar.MenuItem>
@@ -20,4 +29,11 @@
 			</a>
 		{/snippet}
 	</Sidebar.MenuButton>
+	<NoteActionMenu
+		isPinned={note.isPinned}
+		{disabled}
+		sidebar
+		ontogglepin={() => ontogglepin(note)}
+		ondelete={() => ondelete(note)}
+	/>
 </Sidebar.MenuItem>

@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { NoteEditor, NoteLoading, NoteMessage, NoteView } from '$lib/components/notes/index.js';
+	import { toPlainNoteInput } from '$lib/notes/note-input.js';
 	import { notesStore } from '$lib/notes/notes.svelte.js';
 	import { watch } from 'runed';
 
@@ -61,7 +62,7 @@
 		editorError = '';
 
 		try {
-			const updatedNote = await window.desktop.notes.update(note.id, input);
+			const updatedNote = await window.desktop.notes.update(note.id, toPlainNoteInput(input));
 			if (!updatedNote) {
 				note = null;
 				viewState = 'not-found';
@@ -85,7 +86,7 @@
 		try {
 			const updatedNote = await window.desktop.notes.update(
 				note.id,
-				getNoteInput(note, !note.isPinned)
+				toPlainNoteInput(getNoteInput(note, !note.isPinned))
 			);
 			if (!updatedNote) {
 				note = null;
