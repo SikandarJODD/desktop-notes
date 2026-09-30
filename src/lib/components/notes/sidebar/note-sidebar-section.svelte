@@ -1,6 +1,8 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { fade, scale, slide } from 'svelte/transition';
 	import NoteSidebarItem from './note-sidebar-item.svelte';
+	import { flip } from 'svelte/animate';
 
 	interface Props {
 		title: string;
@@ -35,13 +37,15 @@
 				{/each}
 			{:else if notes.length > 0}
 				{#each notes as note (note.id)}
-					<NoteSidebarItem
-						{note}
-						active={activeNoteId === note.id}
-						disabled={disabledNoteId === note.id}
-						{ontogglepin}
-						{ondelete}
-					/>
+					<div in:slide={{ duration: 180 }} out:slide={{ duration: 180 }}>
+						<NoteSidebarItem
+							{note}
+							active={activeNoteId === note.id}
+							disabled={disabledNoteId === note.id}
+							{ontogglepin}
+							{ondelete}
+						/>
+					</div>
 				{/each}
 			{:else}
 				<li class="px-2 py-1.5 text-xs text-sidebar-foreground/60">{emptyMessage}</li>

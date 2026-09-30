@@ -19,7 +19,7 @@
 </script>
 
 <DropdownMenu.Root>
-	<DropdownMenu.Trigger {disabled}>
+	<DropdownMenu.Trigger {disabled} class="cursor-pointer">
 		{#snippet child({ props })}
 			{#if sidebar}
 				<Sidebar.MenuAction showOnHover aria-label="More note actions" {disabled} {...props}>

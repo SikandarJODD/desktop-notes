@@ -24,7 +24,7 @@
 				title={note.title.trim() || 'Untitled'}
 				{...props}
 			>
-				<FileTextIcon />
+				<FileTextIcon strokeWidth={1.4} />
 				<span>{note.title.trim() || 'Untitled'}</span>
 			</a>
 		{/snippet}
