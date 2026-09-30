@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { cmdOrCtrl, isMac } from '$lib/hooks/is-mac.svelte.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -21,7 +21,12 @@
 	let title = $state(untrack(() => note?.title ?? ''));
 	let content = $state(untrack(() => note?.content ?? ''));
 	let tags = $state<string[]>(untrack(() => [...(note?.tags ?? [])]));
+	let titleInput = $state<HTMLInputElement | null>(null);
 	const pressedKeys = new PressedKeys();
+
+	onMount(() => {
+		if (!note) titleInput?.focus();
+	});
 
 	function saveNote() {
 		if (submitting) return;
@@ -52,6 +57,7 @@
 <form class="mx-auto flex w-full max-w-prose flex-col gap-5 px-6 py-8" onsubmit={handleSubmit}>
 	<header class="flex items-center justify-between gap-4">
 		<Input
+			bind:ref={titleInput}
 			bind:value={title}
 			placeholder="Untitled"
 			aria-label="Note title"
