@@ -20,6 +20,7 @@
 
 	const pinnedNotes = $derived(notesStore.notes.filter((note) => note.isPinned));
 	const recentNotes = $derived(notesStore.notes.filter((note) => !note.isPinned));
+	const navigableNotes = $derived([...pinnedNotes, ...recentNotes]);
 	const activeNoteId = $derived(page.params.id);
 
 	onMount(() => {
@@ -38,6 +39,38 @@
 		const usesNewNoteShortcut =
 			event.key.toLowerCase() === 'n' && (isMac ? event.metaKey : event.ctrlKey);
 		if (usesNewNoteShortcut) event.preventDefault();
+	}
+
+	function navigateNotes(event: KeyboardEvent) {
+		if (
+			event.defaultPrevented ||
+			(event.key !== 'ArrowDown' && event.key !== 'ArrowUp') ||
+			event.metaKey ||
+			event.ctrlKey ||
+			event.altKey ||
+			event.shiftKey ||
+			!activeNoteId ||
+			busyNoteId
+		)
+			return;
+
+		const target = event.target;
+		if (
+			target instanceof HTMLElement &&
+			(target.isContentEditable ||
+				Boolean(target.closest('input, textarea, select, [role="menu"], [contenteditable="true"]')))
+		)
+			return;
+
+		const currentIndex = navigableNotes.findIndex((note) => note.id === activeNoteId);
+		if (currentIndex === -1) return;
+
+		const nextIndex = currentIndex + (event.key === 'ArrowDown' ? 1 : -1);
+		const nextNote = navigableNotes[nextIndex];
+		if (!nextNote) return;
+
+		event.preventDefault();
+		void goto(resolve('/notes/[id]', { id: nextNote.id }));
 	}
 
 	async function togglePin(note: Note) {
@@ -85,7 +118,12 @@
 	pressedKeys.onKeys([isMac ? 'meta' : 'control', 'n'], openNewNote);
 </script>
 
-<svelte:window onkeydown={preventBrowserNewWindow} />
+<svelte:window
+	onkeydown={(event) => {
+		preventBrowserNewWindow(event);
+		navigateNotes(event);
+	}}
+/>
 
 <Sidebar.Root bind:ref variant="inset" {...restProps}>
 	<Sidebar.Header>
@@ -144,5 +182,5 @@
 		{/if}
 	</Sidebar.Content>
 
-	<Sidebar.Rail />
+	<!-- <Sidebar.Rail /> -->
 </Sidebar.Root>

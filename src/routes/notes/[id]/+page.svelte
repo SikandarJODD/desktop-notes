@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { NoteEditor, NoteLoading, NoteMessage, NoteView } from '$lib/components/notes/index.js';
+	import { isMac } from '$lib/hooks/is-mac.svelte.js';
 	import { toPlainNoteInput } from '$lib/notes/note-input.js';
 	import { notesStore } from '$lib/notes/notes.svelte.js';
 	import { watch } from 'runed';
@@ -121,11 +122,22 @@
 		}
 	}
 
+	function handleDeleteShortcut(event: KeyboardEvent) {
+		const usesDeleteShortcut =
+			event.key.toLowerCase() === 'd' && (isMac ? event.metaKey : event.ctrlKey);
+		if (!usesDeleteShortcut) return;
+
+		event.preventDefault();
+		if (!busy) void deleteNote();
+	}
+
 	watch(
 		() => page.params.id,
 		(id) => void loadNote(id)
 	);
 </script>
+
+<svelte:window onkeydown={handleDeleteShortcut} />
 
 <svelte:head>
 	<title>{note?.title.trim() || 'Note'}</title>
