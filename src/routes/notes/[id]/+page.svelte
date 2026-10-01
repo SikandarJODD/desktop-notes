@@ -14,7 +14,6 @@
 	let viewState = $state<ViewState>('loading');
 	let editing = $state(false);
 	let busy = $state(false);
-	let saving = $state(false);
 	let editorError = $state('');
 	let loadError = $state('');
 	let requestNumber = 0;
@@ -61,7 +60,6 @@
 	async function persistNote(input: NoteInput, finishEditing: boolean) {
 		if (!note) return;
 		if (finishEditing) busy = true;
-		saving = true;
 		editorError = '';
 
 		try {
@@ -80,7 +78,6 @@
 			throw caughtError;
 		} finally {
 			if (finishEditing) busy = false;
-			saving = false;
 		}
 	}
 
@@ -176,7 +173,6 @@
 		<NoteEditor
 			{note}
 			submitting={busy}
-			{saving}
 			error={editorError}
 			onsubmit={saveNote}
 			onautosave={autoSaveNote}

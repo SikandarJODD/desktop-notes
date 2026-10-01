@@ -5,7 +5,6 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Kbd, KbdGroup } from '$lib/components/ui/kbd/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { Spinner } from '$lib/components/ui/spinner/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { registerPendingNoteSave } from '$lib/notes/pending-note-save.js';
 	import { PressedKeys, useDebounce, watch } from 'runed';
@@ -14,7 +13,6 @@
 	interface Props {
 		note?: Note;
 		submitting?: boolean;
-		saving?: boolean;
 		error?: string;
 		onsubmit: (input: NoteInput) => void | Promise<void>;
 		onautosave?: (input: NoteInput) => void | Promise<void>;
@@ -24,7 +22,6 @@
 	let {
 		note,
 		submitting = false,
-		saving = false,
 		error,
 		onsubmit,
 		onautosave,
@@ -129,7 +126,7 @@
 
 <form class="mx-auto flex w-full max-w-prose flex-col gap-5 px-6 py-8" onsubmit={handleSubmit}>
 	<header class="flex items-center justify-between gap-4">
-		<div class="flex min-w-0 flex-1 items-center gap-2">
+		<div class="min-w-0 flex-1">
 			<Input
 				bind:ref={titleInput}
 				bind:value={title}
@@ -138,9 +135,6 @@
 				class="h-auto border-0 px-0 py-1 text-xl leading-tight font-medium tracking-tight shadow-none focus-visible:ring-0"
 				disabled={submitting}
 			/>
-			{#if saving}
-				<Spinner class="size-3.5 shrink-0 text-muted-foreground/60" aria-label="Saving note" />
-			{/if}
 		</div>
 		<div class="flex shrink-0 items-center gap-1">
 			<Button variant="secondary" onclick={() => void finishEditing()} disabled={submitting}>
