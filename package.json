@@ -1,6 +1,8 @@
 {
 	"name": "notes",
 	"productName": "Bhide Notes App",
+	"description": "A simple desktop notes application.",
+	"author": "Bhide",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -9,12 +11,34 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"desktop:dev": "concurrently -k \"vite dev\" \"wait-on http://localhost:5173 && electron .\"",
+		"desktop:pack": "pnpm build && electron-builder --dir",
+		"desktop:dist": "pnpm build && electron-builder",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check .",
 		"format": "prettier --write ."
+	},
+	"build": {
+		"appId": "com.bhide.notes",
+		"directories": {
+			"output": "release",
+			"buildResources": "electron/assets"
+		},
+		"files": ["build/**/*", "electron/**/*", "package.json"],
+		"mac": {
+			"target": "dmg",
+			"icon": "icon.png"
+		},
+		"win": {
+			"target": "nsis",
+			"icon": "icon.png"
+		},
+		"linux": {
+			"target": "AppImage",
+			"icon": "icon.png"
+		}
 	},
 	"devDependencies": {
 		"@fontsource-variable/geist": "^5.3.0",
@@ -27,6 +51,8 @@
 		"@tailwindcss/vite": "^4.3.0",
 		"bits-ui": "^2.19.3",
 		"cn": "^0.3.3",
+		"electron": "^44.5.0",
+		"electron-builder": "^26.15.3",
 		"phosphor-svelte": "^3.1.0",
 		"prettier": "^3.8.3",
 		"prettier-plugin-svelte": "^4.1.0",
@@ -43,7 +69,6 @@
 	"dependencies": {
 		"@fontsource-variable/figtree": "^5.3.0",
 		"concurrently": "^10.0.5",
-		"electron": "^44.5.0",
 		"mode-watcher": "^1.1.0",
 		"runed": "^0.37.1",
 		"wait-on": "^9.5.1"
