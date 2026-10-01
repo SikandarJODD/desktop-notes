@@ -11,6 +11,8 @@ const {
 } = require('./database.cjs');
 
 const iconPath = path.join(__dirname, 'assets', 'icon.png');
+const closePendingWindows = new WeakSet();
+const closeReadyWindows = new WeakSet();
 
 function createWindow() {
 	const win = new BrowserWindow({
@@ -25,6 +27,14 @@ function createWindow() {
 			contextIsolation: true,
 			nodeIntegration: false
 		}
+	});
+
+	win.on('close', (event) => {
+		if (closeReadyWindows.has(win)) return;
+
+		event.preventDefault();
+		closePendingWindows.add(win);
+		win.webContents.send('app:before-close');
 	});
 
 	if (!app.isPackaged) {
@@ -43,6 +53,18 @@ app.whenReady().then(() => {
 	ipcMain.handle('notes:create', (_event, input) => createNote(input));
 	ipcMain.handle('notes:update', (_event, id, input) => updateNote(id, input));
 	ipcMain.handle('notes:delete', (_event, id) => deleteNote(id));
+	ipcMain.on('app:close-ready', (event) => {
+		const win = BrowserWindow.fromWebContents(event.sender);
+		if (!win || !closePendingWindows.has(win)) return;
+
+		closePendingWindows.delete(win);
+		closeReadyWindows.add(win);
+		win.close();
+	});
+	ipcMain.on('app:close-cancelled', (event) => {
+		const win = BrowserWindow.fromWebContents(event.sender);
+		if (win) closePendingWindows.delete(win);
+	});
 
 	if (process.platform === 'darwin') {
 		app.dock.setIcon(iconPath);
@@ -57,7 +79,7 @@ app.whenReady().then(() => {
 	});
 });
 
-app.on('before-quit', closeDatabase);
+app.on('will-quit', closeDatabase);
 
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {

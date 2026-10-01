@@ -14,6 +14,7 @@
 	let viewState = $state<ViewState>('loading');
 	let editing = $state(false);
 	let busy = $state(false);
+	let saving = $state(false);
 	let editorError = $state('');
 	let loadError = $state('');
 	let requestNumber = 0;
@@ -57,9 +58,10 @@
 		}
 	}
 
-	async function saveNote(input: NoteInput) {
+	async function persistNote(input: NoteInput, finishEditing: boolean) {
 		if (!note) return;
-		busy = true;
+		if (finishEditing) busy = true;
+		saving = true;
 		editorError = '';
 
 		try {
@@ -72,12 +74,22 @@
 
 			note = updatedNote;
 			notesStore.upsert(updatedNote);
-			editing = false;
+			if (finishEditing) editing = false;
 		} catch (caughtError) {
 			editorError = getErrorMessage(caughtError, 'Could not save this note.');
+			throw caughtError;
 		} finally {
-			busy = false;
+			if (finishEditing) busy = false;
+			saving = false;
 		}
+	}
+
+	function saveNote(input: NoteInput) {
+		return persistNote(input, true);
+	}
+
+	function autoSaveNote(input: NoteInput) {
+		return persistNote(input, false);
 	}
 
 	async function togglePin() {
@@ -164,8 +176,10 @@
 		<NoteEditor
 			{note}
 			submitting={busy}
+			{saving}
 			error={editorError}
 			onsubmit={saveNote}
+			onautosave={autoSaveNote}
 			oncancel={() => {
 				editing = false;
 				editorError = '';

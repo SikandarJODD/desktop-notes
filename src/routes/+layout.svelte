@@ -1,10 +1,29 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { onNavigate } from '$app/navigation';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { flushPendingNoteSave } from '$lib/notes/pending-note-save.js';
 
 	let { children } = $props();
+
+	onNavigate(() => flushPendingNoteSave());
+
+	onMount(() => {
+		const desktopApp = window.desktop?.app;
+		if (!desktopApp) return;
+
+		return desktopApp.onBeforeClose(async () => {
+			try {
+				await flushPendingNoteSave();
+				desktopApp.closeReady();
+			} catch {
+				desktopApp.closeCancelled();
+			}
+		});
+	});
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>

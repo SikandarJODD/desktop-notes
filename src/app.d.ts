@@ -18,6 +18,11 @@ declare global {
 	interface Window {
 		desktop: {
 			getVersion: () => Promise<string>;
+			app: {
+				onBeforeClose: (callback: () => void | Promise<void>) => () => void;
+				closeReady: () => void;
+				closeCancelled: () => void;
+			};
 			notes: {
 				list: () => Promise<Note[]>;
 				get: (id: string) => Promise<Note | null>;
