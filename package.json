@@ -4,7 +4,7 @@
 	"description": "A simple desktop notes application.",
 	"author": "Bhide",
 	"private": true,
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"type": "module",
 	"main": "electron/main.cjs",
 	"scripts": {
@@ -26,7 +26,11 @@
 			"output": "release",
 			"buildResources": "electron/assets"
 		},
-		"files": ["build/**/*", "electron/**/*", "package.json"],
+		"files": [
+			"build/**/*",
+			"electron/**/*",
+			"package.json"
+		],
 		"mac": {
 			"target": "dmg",
 			"icon": "icon.png"
